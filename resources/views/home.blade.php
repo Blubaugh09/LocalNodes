@@ -284,20 +284,15 @@ function resetDiagram() {
 
 
 function callUser(userId, phoneNumber) {
-    // Logic to handle a phone call, e.g., opening a dialer
-    window.open(`tel:${phoneNumber}`);
-
-    // Update contacteds table
+    window.location.href = `tel:${phoneNumber}`;
     updateContactedTable('phone', userId);
 }
 
 function emailUser(userId, emailAddress) {
-    // Logic to handle email, e.g., opening mail client
-    window.open(`mailto:${emailAddress}`);
-
-    // Update contacteds table
+    window.location.href = `mailto:${emailAddress}`;
     updateContactedTable('email', userId);
 }
+
 
 function updateContactedTable(contactType, userId) {
     fetch('/admin/contacteds', {
