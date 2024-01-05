@@ -199,22 +199,27 @@ function hexToRGBA(hex, alpha) {
                     new go.Binding("visible", "canEdit"),
                     $(go.TextBlock, "Edit")
                 ),
-                $("Button",
-                    {
-                        click: function(e, obj) { callUser(obj.part.data.key, obj.part.data.phone); },
-                        margin: 2
+                $("Button", {
+                    click: function(e, obj) { 
+                        textUser(obj.part.data.key, obj.part.data.phone); // Use data.phone here
                     },
-                    new go.Binding("visible", "showButtons"),
-                    $(go.TextBlock, "Call")
-                ),
-                $("Button",
-                    {
-                        click: function(e, obj) { emailUser(obj.part.data.key, obj.part.data.email); },
-                        margin: 2
+                    margin: 2
+                }, new go.Binding("visible", "showButtons"), $(go.TextBlock, "Text")),
+
+                $("Button", {
+                    click: function(e, obj) { 
+                        emailUser(obj.part.data.key, obj.part.data.email); // Use data.email here
+                        console.log(obj.part.data.key,obj.part.data.email);
                     },
-                    new go.Binding("visible", "showButtons"),
-                    $(go.TextBlock, "Email")
-                )
+                    margin: 2
+                }, new go.Binding("visible", "showButtons"), $(go.TextBlock, "Email")),
+                $("Button", {
+                    click: function(e, obj) { 
+                        callUser(obj.part.data.key, obj.part.data.phone); // Use data.phone here
+                    },
+                    margin: 2
+                }, new go.Binding("visible", "showButtons"), $(go.TextBlock, "Call")),
+
             )
         ),
         {
@@ -286,6 +291,11 @@ function resetDiagram() {
 function callUser(userId, phoneNumber) {
     window.location.href = `tel:${phoneNumber}`;
     updateContactedTable('phone', userId);
+}
+
+function textUser(userId, phoneNumber) {
+    window.location.href = `sms:${phoneNumber}`;
+    updateContactedTable('sms', userId);
 }
 
 function emailUser(userId, emailAddress) {

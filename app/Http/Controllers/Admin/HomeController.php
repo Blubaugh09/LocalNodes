@@ -66,19 +66,33 @@ class HomeController
                 'name' => $user->name,
                 'categoryColors' => $categoryColors, // Include category colors
                 'canEdit' => $canEdit,
+                'phone' => $user->phone,
+                'email' => $user->email,
                 'categoryData' => $categoryData,
                 // ... other details ...
             ];
     
             // Assuming phone, email, and address are attributes of the User model
             if ($user->phone) {
-                $nodes[] = ['key' => $user->id . '_phone', 'name' => $user->phone, 'color' => 'orange'];
+                $nodes[] = [
+                    'key' => $user->id . '_phone', 
+                    'name' => 'Call ' . $user->phone, 
+                    'phone' => $user->phone, // Include the phone number here
+                    'color' => 'orange'
+                ];
                 $links[] = ['from' => $user->id, 'to' => $user->id . '_phone'];
             }
+            
             if ($user->email) {
-                $nodes[] = ['key' => $user->id . '_email', 'name' => $user->email, 'color' => 'yellow'];
+                $nodes[] = [
+                    'key' => $user->id . '_email', 
+                    'name' => 'Email ' . $user->email, 
+                    'email' => $user->email, // Include the email here
+                    'color' => 'yellow'
+                ];
                 $links[] = ['from' => $user->id, 'to' => $user->id . '_email'];
             }
+            
             if ($user->address) {
                 $nodes[] = ['key' => $user->id . '_address', 'name' => $user->address, 'color' => 'green'];
                 $links[] = ['from' => $user->id, 'to' => $user->id . '_address'];
