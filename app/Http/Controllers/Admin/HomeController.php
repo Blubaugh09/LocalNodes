@@ -1,25 +1,17 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-use App\Http\Controllers\Controller;
-use App\Http\Controllers\Traits\CsvImportTrait;
-use App\Http\Controllers\Traits\MediaUploadingTrait;
-use App\Http\Requests\MassDestroyUserRequest;
-use App\Http\Requests\StoreUserRequest;
-use App\Http\Requests\UpdateUserRequest;
+
 use App\Models\Role;
 use App\Models\Team;
 use App\Models\User;
 use App\Models\Contacted;
 use Gate;
-use Illuminate\Http\Request;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Category;
-use App\Models\MemberCategory;
-use App\Models\Roles;
+use Carbon\Carbon;
 
 class HomeController
 {
@@ -113,10 +105,16 @@ class HomeController
         $lastContactedDates = Contacted::select('user_ended_id', DB::raw('MAX(updated_at) as last_contacted'))
                                        ->where('user_started_id', $authUserId)
                                        ->groupBy('user_ended_id')
-                                       ->get()
-                                       ->pluck('last_contacted', 'user_ended_id');
-
-        return $lastContactedDates;
+                                       ->get();
+    
+        // Convert last_contacted to New York Time
+        foreach ($lastContactedDates as $date) {
+            $date->last_contacted = Carbon::parse($date->last_contacted)
+                                          ->setTimezone('America/New_York')
+                                          ->toDateTimeString();
+        }
+    
+        return $lastContactedDates->pluck('last_contacted', 'user_ended_id');
     }
 
 

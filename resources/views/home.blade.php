@@ -33,24 +33,24 @@
 <script src="https://unpkg.com/gojs/release/go.js"></script>
 <script>
 
-// Assuming myDiagram is already defined as you mentioned
-function zoomIn() {
-    var zoomIncrement = 0.3; // Define how much you want to zoom each time
-    myDiagram.scale += zoomIncrement;
-}
+// // Assuming myDiagram is already defined as you mentioned
+// function zoomIn() {
+//     var zoomIncrement = 0.3; // Define how much you want to zoom each time
+//     myDiagram.scale += zoomIncrement;
+// }
 
-// Function to create and add the zoom button
-function createZoomButton() {
-    var zoomButton = document.createElement('button');
-    zoomButton.innerHTML = 'Zoom In';
-    zoomButton.addEventListener('click', zoomIn);
-    document.body.appendChild(zoomButton);
-}
+// // Function to create and add the zoom button
+// function createZoomButton() {
+//     var zoomButton = document.createElement('button');
+//     zoomButton.innerHTML = 'Zoom In';
+//     zoomButton.addEventListener('click', zoomIn);
+//     document.body.appendChild(zoomButton);
+// }
 
-// Check if the device is likely a desktop
-if (window.innerWidth > 768) {
-    createZoomButton(); // Create the zoom button for desktops
-}
+// // Check if the device is likely a desktop
+// if (window.innerWidth > 768) {
+//     createZoomButton(); // Create the zoom button for desktops
+// }
 
 
 
@@ -188,6 +188,7 @@ function hexToRGBA(hex, alpha) {
                     var timeOptions = { hour: '2-digit', minute: '2-digit' };
                     return date.toLocaleDateString(undefined, dateOptions) + ' ' + date.toLocaleTimeString(undefined, timeOptions);
                 })
+
             ),
             $(go.Panel, "Horizontal",
                 { defaultAlignment: go.Spot.BottomCenter, margin: 2 },
