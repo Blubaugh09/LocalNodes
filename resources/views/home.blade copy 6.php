@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
           });
 
 // Assuming myDiagram is your GoJS diagram
-myDiagram.padding = new go.Margin(100, 10, 1000, 10); // (top, right, bottom, left)
+myDiagram.padding = new go.Margin(10, 10, 1000, 10); // (top, right, bottom, left)
 
 
     // Function to handle category selection
@@ -102,59 +102,53 @@ window.selectCategory = function(categoryName) {
 };
 
 function getNodeColor(nodeData) {
+    // Function to convert hex color to rgba for transparency
     function convertHexToRGBA(hexColor, opacity) {
         var r = parseInt(hexColor.slice(1, 3), 16),
             g = parseInt(hexColor.slice(3, 5), 16),
             b = parseInt(hexColor.slice(5, 7), 16);
+
         return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + opacity + ')';
     }
 
-    var currentDate = new Date();
-    var recentContactOpacity = 0.2; // More transparent for recent contact
-    var noRecentContactOpacity = 1; // Full color for no recent contact
-    var defaultColor = 'rgba(139, 50, 10, ' + noRecentContactOpacity + ')'; // Dark red for nodes not contacted
+    // Check if the node was contacted within the last 14 days
+    if (nodeData.lastContacted) {
+        var lastContactDate = new Date(nodeData.lastContacted);
+        var currentDate = new Date();
+        var timeDiff = currentDate.getTime() - lastContactDate.getTime();
+        var daysDiff = timeDiff / (1000 * 3600 * 24);
 
-    // Determine if the node has been contacted in the last 14 days
-    var daysSinceLastContact = nodeData.lastContacted ? (currentDate.getTime() - new Date(nodeData.lastContacted).getTime()) / (1000 * 3600 * 24) : Infinity;
-
-    // Check if there is category color data
-    if (nodeData.categoryData && nodeData.categoryData.length > 0) {
-        var categoryColor = nodeData.categoryData[0].color_code;
-        if (categoryColor.toUpperCase() === "#FFFFFF") { // Check if category color is white
-            // If the node has not been contacted or has been contacted over 14 days ago, use dark red
-            if (!nodeData.lastContacted || daysSinceLastContact > 14) {
-                return defaultColor;
+        if (daysDiff <= 14) {
+            // If the node has category data, make its color semi-transparent
+            if (nodeData.categoryData && nodeData.categoryData.length > 0) {
+                return convertHexToRGBA(nodeData.categoryData[0].color_code, 0.5); // 50% transparency
             }
+            return "rgba(144, 238, 144, 0.5)"; // Light green with semi-transparency
         }
-        // Apply the appropriate opacity based on the contact status
-        var opacity = daysSinceLastContact <= 14 ? recentContactOpacity : noRecentContactOpacity;
-        return convertHexToRGBA(categoryColor, opacity);
     }
 
-    return defaultColor;
+    // Use the category color if available
+    if (nodeData.categoryData && nodeData.categoryData.length > 0) {
+        return nodeData.categoryData[0].color_code;
+    }
+
+    return "#f2f2f2"; // Default color when no recent contact and no category
 }
 
 
 
 
+// Changes the color of the node based on the last contacted date and adds transparency. 
+function hexToRGBA(hex, alpha) {
+    var r = parseInt(hex.slice(1, 3), 16),
+        g = parseInt(hex.slice(3, 5), 16),
+        b = parseInt(hex.slice(5, 7), 16);
 
+    if (alpha > 1) alpha = 1; // Ensure alpha is between 0 and 1
+    else if (alpha < 0) alpha = 0;
 
-
-
-
-
-
-// // Changes the color of the node based on the last contacted date and adds transparency. 
-// function hexToRGBA(hex, alpha) {
-//     var r = parseInt(hex.slice(1, 3), 16),
-//         g = parseInt(hex.slice(3, 5), 16),
-//         b = parseInt(hex.slice(5, 7), 16);
-
-//     if (alpha > 1) alpha = 1; // Ensure alpha is between 0 and 1
-//     else if (alpha < 0) alpha = 0;
-
-//     return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
-// }
+    return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
+}
 
     // Update your nodes with the last contacted information
     nodes.forEach(function(node) {

@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
           });
 
 // Assuming myDiagram is your GoJS diagram
-myDiagram.padding = new go.Margin(100, 10, 1000, 10); // (top, right, bottom, left)
+myDiagram.padding = new go.Margin(10, 10, 1000, 10); // (top, right, bottom, left)
 
 
     // Function to handle category selection
@@ -102,40 +102,47 @@ window.selectCategory = function(categoryName) {
 };
 
 function getNodeColor(nodeData) {
+    // Function to convert hex color to rgba for transparency
     function convertHexToRGBA(hexColor, opacity) {
         var r = parseInt(hexColor.slice(1, 3), 16),
             g = parseInt(hexColor.slice(3, 5), 16),
             b = parseInt(hexColor.slice(5, 7), 16);
+
         return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + opacity + ')';
     }
 
     var currentDate = new Date();
-    var recentContactOpacity = 0.2; // More transparent for recent contact
-    var noRecentContactOpacity = 1; // Full color for no recent contact
-    var defaultColor = 'rgba(139, 50, 10, ' + noRecentContactOpacity + ')'; // Dark red for nodes not contacted
+    var defaultColor = "rgba(139, 0, 0, 0.5)"; // Light red with semi-transparency
 
-    // Determine if the node has been contacted in the last 14 days
-    var daysSinceLastContact = nodeData.lastContacted ? (currentDate.getTime() - new Date(nodeData.lastContacted).getTime()) / (1000 * 3600 * 24) : Infinity;
+    if (nodeData.lastContacted) {
+        var lastContactDate = new Date(nodeData.lastContacted);
+        var timeDiff = currentDate.getTime() - lastContactDate.getTime();
+        var daysDiff = timeDiff / (1000 * 3600 * 24);
 
-    // Check if there is category color data
-    if (nodeData.categoryData && nodeData.categoryData.length > 0) {
-        var categoryColor = nodeData.categoryData[0].color_code;
-        if (categoryColor.toUpperCase() === "#FFFFFF") { // Check if category color is white
-            // If the node has not been contacted or has been contacted over 14 days ago, use dark red
-            if (!nodeData.lastContacted || daysSinceLastContact > 14) {
-                return defaultColor;
-            }
+        if (daysDiff <= 14 && nodeData.categoryData && nodeData.categoryData.length > 0) {
+            // If contacted within the last 14 days and has category data, use the category color
+            return nodeData.categoryData[0].color_code;
+        } else if (daysDiff <= 14) {
+            // If contacted within the last 14 days but no category data, use default color for recent contact
+            return "#f2f2f2"; // Default color for recent contact
         }
-        // Apply the appropriate opacity based on the contact status
-        var opacity = daysSinceLastContact <= 14 ? recentContactOpacity : noRecentContactOpacity;
-        return convertHexToRGBA(categoryColor, opacity);
+        // If contacted over 14 days ago, use the default light red color
+        return defaultColor;
     }
 
+    // If no lastContacted date and has category data, check the category color
+    if (nodeData.categoryData && nodeData.categoryData.length > 0) {
+        if (nodeData.categoryData[0].color_code.toUpperCase() !== "#FFFFFF") {
+            // If the category color is not white, use the category color
+            return convertHexToRGBA(nodeData.categoryData[0].color_code, 1);
+        }
+        // If the category color is white, use the default light red color
+        return defaultColor;
+    }
+
+    // If no lastContacted date and no category data, use the default light red color
     return defaultColor;
 }
-
-
-
 
 
 
