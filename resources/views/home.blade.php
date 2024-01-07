@@ -107,7 +107,6 @@ function getNodeColor(nodeData) {
             g = parseInt(hexColor.slice(3, 5), 16),
             b = parseInt(hexColor.slice(5, 7), 16);
         var rgba = 'rgba(' + r + ', ' + g + ', ' + b + ', ' + opacity + ')';
-        console.log(`Converted ${hexColor} to ${rgba} with opacity ${opacity}`);
         return rgba;
     }
 
@@ -116,38 +115,36 @@ function getNodeColor(nodeData) {
     var noRecentContactOpacity = 1; // Full color for no recent contact
     var defaultColor = 'rgba(139, 0, 0, ' + noRecentContactOpacity + ')'; // Dark red for nodes not contacted
 
-    console.log(`Evaluating node color for: ${nodeData.name}`);
-    console.log(`Current Date: ${currentDate.toISOString()}`);
-    console.log(`Last Contacted: ${nodeData.lastContacted}`);
+
 
     var daysSinceLastContact = nodeData.lastContacted ? (currentDate.getTime() - new Date(nodeData.lastContacted).getTime()) / (1000 * 3600 * 24) : Infinity;
-    console.log(`Days Since Last Contact: ${daysSinceLastContact}`);
+
 
     // Check if there is category color data
     if (nodeData.categoryData && nodeData.categoryData.length > 0) {
         var categoryColor = nodeData.categoryData[0].color_code;
-        console.log(`Category Color: ${categoryColor}`);
+        
 
         if (categoryColor.toUpperCase() === "#FFFFFF") { // Check if category color is white
-            console.log(`Category color is white.`);
+     
             // If the node has not been contacted or has been contacted over 14 days ago, use dark red
             if (!nodeData.lastContacted || daysSinceLastContact > 14) {
-                console.log(`Node should be dark red.`);
+              
                 return defaultColor;
             }
         }
         // Apply the appropriate opacity based on the contact status
         var opacity = daysSinceLastContact <= 14 ? recentContactOpacity : noRecentContactOpacity;
         var finalColor = convertHexToRGBA(categoryColor, opacity);
-        console.log(`Final color based on category and contact status: ${finalColor}`);
+     
         return finalColor;
     } else {
-        console.log(`No category color data. Checking contact status.`);
+ 
         if (nodeData.lastContacted && daysSinceLastContact <= 14) {
-            console.log(`Node has been contacted within 14 days but has no category, using white.`);
+       
             return convertHexToRGBA('#FFFFFF', recentContactOpacity); // Return white with some transparency
         } else {
-            console.log(`Node has not been contacted or it's been over 14 days, using default dark red.`);
+            console.log("Never");
             return defaultColor; // Use default dark red
         }
     }
@@ -176,13 +173,16 @@ function getNodeColor(nodeData) {
 //     return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
 // }
 
+
     // Update your nodes with the last contacted information
-    nodes.forEach(function(node) {
-        if (node.key in lastContactedDates) {
-            node.lastContacted = lastContactedDates[node.key];
-            // You can add additional logic here for color coding
-        }
-    });
+nodes.forEach(function(node) {
+    if (node.key in lastContactedDates) {
+        node.lastContacted = lastContactedDates[node.key];
+    } else {
+        node.lastContacted = null; // Or an empty string, whichever you prefer
+    }
+});
+
 
 
     myDiagram.nodeTemplate =
@@ -202,20 +202,22 @@ function getNodeColor(nodeData) {
                 new go.Binding("text", "name")
             ),
             $(go.TextBlock,
-                {
-                    stroke: "blue",
-                    font: "12px sans-serif",
-                    margin: 2
-                },
-                new go.Binding("text", "lastContacted", function(dateString) {
-                    if (!dateString) return "";
-                    var date = new Date(dateString);
-                    var dateOptions = { year: 'numeric', month: '2-digit', day: '2-digit' };
-                    var timeOptions = { hour: '2-digit', minute: '2-digit' };
-                    return date.toLocaleDateString(undefined, dateOptions) + ' ' + date.toLocaleTimeString(undefined, timeOptions);
-                })
+    {
+        stroke: "blue",
+        font: "12px sans-serif",
+        margin: 2
+    },
+    new go.Binding("text", "lastContacted", function(dateString) {
+        if (!dateString) return "Never";
+        var lastContactedDate = new Date(dateString);
+        var currentDate = new Date();
+        var timeDiff = Math.abs(currentDate - lastContactedDate);
+        var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        return diffDays + " day" + (diffDays !== 1 ? "s" : "");
+    })
+),
 
-            ),
+
             $(go.Panel, "Horizontal",
                 { defaultAlignment: go.Spot.BottomCenter, margin: 2 },
                 $("Button",
