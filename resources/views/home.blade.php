@@ -324,17 +324,17 @@ function resetDiagram() {
 
 
 function callUser(userId, phoneNumber) {
-    window.location.href = `tel:${phoneNumber}`;
+    window.open(`tel:${phoneNumber}`, '_blank');
     updateContactedTable('phone', userId);
 }
 
 function textUser(userId, phoneNumber) {
-    window.location.href = `sms:${phoneNumber}`;
+    window.open(`sms:${phoneNumber}`, '_blank');
     updateContactedTable('sms', userId);
 }
 
 function emailUser(userId, emailAddress) {
-    window.location.href = `mailto:${emailAddress}`;
+    window.open(`mailto:${emailAddress}`, '_blank');
     updateContactedTable('email', userId);
 }
 
