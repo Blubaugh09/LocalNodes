@@ -34,8 +34,7 @@ class StoreUserRequest extends FormRequest
                 'nullable',
             ],
             'email' => [
-                'required',
-                'unique:users',
+                
             ],
             'address' => [
                 'string',
